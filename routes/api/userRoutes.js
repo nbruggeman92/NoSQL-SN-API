@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { User, Thought } = require('../../models');
 
-// Get all users
+// get all users
 router.get('/', async (req, res) => {
   try {
     const users = await User.find()
@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get a single user by _id
+// single user
 router.get('/:userId', async (req, res) => {
   try {
     const user = await User.findById(req.params.userId)
@@ -34,7 +34,7 @@ router.get('/:userId', async (req, res) => {
   }
 });
 
-// Create a new user
+// create new user
 router.post('/', async (req, res) => {
   try {
     const user = await User.create(req.body);
@@ -45,7 +45,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Update a user by _id
+// update user
 router.put('/:userId', async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(
@@ -64,7 +64,7 @@ router.put('/:userId', async (req, res) => {
   }
 });
 
-// Delete a user by _id
+// delete user
 router.delete('/:userId', async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.userId);
@@ -82,7 +82,7 @@ router.delete('/:userId', async (req, res) => {
   }
 });
 
-// Add a friend to a user's friend list
+// adding friend to list
 router.post('/:userId/friends/:friendId', async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(
@@ -102,7 +102,7 @@ router.post('/:userId/friends/:friendId', async (req, res) => {
   }
 });
 
-// Remove a friend from a user's friend list
+// removing friend from list
 router.delete('/:userId/friends/:friendId', async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(

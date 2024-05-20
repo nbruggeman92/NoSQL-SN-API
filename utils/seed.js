@@ -6,7 +6,6 @@ connection.on('error', (err) => err);
 connection.once('open', async () => {
   console.log('connected');
 
-  // Drop existing collections if they exist
   const collections = ['users', 'thoughts', 'reactions'];
   for (const collection of collections) {
     const collectionExists = await connection.db.listCollections({ name: collection }).toArray();
@@ -16,54 +15,54 @@ connection.once('open', async () => {
   }
 
   const users = [
-    { username: "annabobanna", email: "usernumber1@gmail.com" },
-    { username: "winnerwinner", email: "usernumber2@gmail.com" },
-    { username: "antisocial", email: "usernumber3@gmail.com" },
-    { username: "mynameisjeff", email: "usernumber4@gmail.com" },
-    { username: "burgerfan", email: "usernumber5@gmail.com" },
+    { username: "nbruggeman92", email: "nbruggeman92@gmail.com" },
+    { username: "geraltrivia", email: "geralt92@gmail.com" },
+    { username: "tedlasso", email: "tedlasso92@gmail.com" },
+    { username: "roykent", email: "roykent92@gmail.com" },
+    { username: "jamietartt", email: "jamietartt92@gmail.com" },
   ];
 
   const userData = await User.insertMany(users);
 
   const thoughts = [
     {
-      thoughtText: "I thought, therefore I... wait what",
+      thoughtText: "Hmmmm...",
       username: userData[0].username,
       reactions: [
-        { reactionBody: "Interesting", username: userData[1].username },
-        { reactionBody: "Confusing", username: userData[2].username }
+        { reactionBody: "WTF", username: userData[1].username },
+        { reactionBody: "YES", username: userData[2].username }
       ]
     },
     {
-      thoughtText: "IDK man",
+      thoughtText: "Sure I guess",
       username: userData[1].username,
       reactions: [
-        { reactionBody: "Same", username: userData[3].username },
-        { reactionBody: "Totally", username: userData[4].username }
+        { reactionBody: "Whatever bro", username: userData[3].username },
+        { reactionBody: "K", username: userData[4].username }
       ]
     },
     {
-      thoughtText: "How can you expect me to use ANOTHER social account?",
+      thoughtText: "GAHHHH",
       username: userData[2].username,
       reactions: [
-        { reactionBody: "True", username: userData[0].username },
-        { reactionBody: "So many", username: userData[3].username }
+        { reactionBody: "Fine.", username: userData[0].username },
+        { reactionBody: "Brain hurts...", username: userData[3].username }
       ]
     },
     {
-      thoughtText: "My name is Jeff",
+      thoughtText: "I'm hungry",
       username: userData[3].username,
       reactions: [
-        { reactionBody: "Hi Jeff", username: userData[1].username },
-        { reactionBody: "LOL", username: userData[4].username }
+        { reactionBody: "Nom nom", username: userData[1].username },
+        { reactionBody: "Hahahaha", username: userData[4].username }
       ]
     },
     {
-      thoughtText: "But why?",
+      thoughtText: "Let's gooo",
       username: userData[4].username,
       reactions: [
-        { reactionBody: "Good question", username: userData[0].username },
-        { reactionBody: "No clue", username: userData[2].username }
+        { reactionBody: "Mmhmm", username: userData[0].username },
+        { reactionBody: "I'm the best", username: userData[2].username }
       ]
     },
   ];
@@ -76,9 +75,8 @@ connection.once('open', async () => {
   await User.findOneAndUpdate({_id: userData[3]._id}, {$addToSet: {thoughts: thoughtData[3]._id}})
   await User.findOneAndUpdate({_id: userData[4]._id}, {$addToSet: {thoughts: thoughtData[4]._id}})
 
-  // Log out the seed data to indicate what should appear in the database
   console.table(userData);
   console.table(thoughtData);
-  console.info('Seeding complete! 🌱');
+  console.info('Success!');
   process.exit(0);
 });
