@@ -1,18 +1,19 @@
 {
-  "dependencies": {
-    "express": "^4.19.2",
-    "mongoose": "^8.4.0",
-    "nodemon": "^3.1.0"
-  },
   "name": "nosql-sn-api",
-  "description": "social network API challenge!",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "description": "woot woot",
   "main": "index.js",
-  "devDependencies": {},
+  "license": "MIT",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index",
+    "dev": "nodemon index",
+    "seed": "node utils/seed"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^7.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.9"
+  }
 }

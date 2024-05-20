@@ -1,131 +1,125 @@
 const router = require('express').Router();
 const { User, Thought } = require('../../models');
 
-// /api/users
+// Get all users
+router.get('/', async (req, res) => {
+  try {
+    const users = await User.find()
+      .populate('thoughts')
+      .populate('friends')
+      .select('-__v');
+    res.json(users);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
 
-// GETS ALL USERS
-router.get("/", async (req, res) => {
-    try {
-        const dbUserData = await User.find().select ("-__v");
-        return res.status(200).json(dbUserData);
-    }catch(err) {
-        res.status(500).json(err);
+// Get a single user by _id
+router.get('/:userId', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId)
+      .populate('thoughts')
+      .populate('friends')
+      .select('-__v');
+
+    if (!user) {
+      return res.status(404).json({ message: 'No user with that ID' });
     }
+
+    res.json(user);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
 });
 
-// CREATES A NEW USER
-router.post("/", async (req, res) => {
-    try { 
-        const dbUserData = await User.create(req.body)
-        return res.status(200).json(dbUserData);
+// Create a new user
+router.post('/', async (req, res) => {
+  try {
+    const user = await User.create(req.body);
+    res.json(user);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
 
-    }catch(err) {
-        res.status(500).json(err)
+// Update a user by _id
+router.put('/:userId', async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.userId, 
+      req.body, 
+      {new: true, runValidators: true,});
+
+    if (!user) {
+      return res.status(404).json({ message: 'No user with that ID' });
     }
+
+    res.json(user);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
 });
 
-// /api/users/:userId
+// Delete a user by _id
+router.delete('/:userId', async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.userId);
 
-// GETS A USER BY ID
-router.get("/:userId", async(req, res) => {
-    try {
-        const dbUserData = await User.findOne({ _id: req.params.userId })
-        .select("-__v")
-        .populate("friends")
-        .populate("thoughts");
-        if(!dbUserData) {
-            return res.status(404).json({ message: "No matching User!" });
-        }
-        res.status(200).json(dbUserData);
-
-    }catch(err) {
-        res.status(500).json(err)
-    }    
-});
-
-//UPDATES A USER BY ID
-router.put("/:userId", async(req, res) => {
-    try {
-        const dbUserData = await User.findOneAndUpdate(
-            {
-                _id: req.params.userId,
-            },
-            {
-                $set: req.body,
-            },
-            {
-                runValidators: true,
-                new: true,
-            }
-        );
-
-        if(!dbUserData) {
-            return res.status(404).json({ message: "No user matches this ID!"})
-        }
-        res.status(200).json(dbUserData)
-
-
-    }catch(err) {
-        res.status(500).json(err)
+    if (!user) {
+      return res.status(404).json({ message: 'No user with that ID' });
     }
+
+    await Thought.deleteMany({ _id: { $in: user.thoughts } });
+
+    res.json({ message: 'User and associated thoughts deleted!' });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
 });
 
-//DELETES A USER BY ID
-router.delete("/:userId", async (req, res) => {
-    try {
-        const dbUserData = await User.findOneAndDelete({ _id: req.params.userId})
-        if(!dbUserData) {
-            return res.status(404).json({ message: "No user matches this ID!"})
-        }
-        await Thought.deleteMany({ _id: { $in: dbUserData.thought }});
-
-        res.status(200).json({message: "User and associated thoughts have been deleted."})
-
-    }catch(err) {
-        console.log(err)
-        res.status(500).json(err)
-    }
-});
-
-// /api/users/:userId/friends/:friendId
-
-// ADD A FRIEND
-router.post("/:userId/friends/:friendId", async (req, res) => {
-    try {
-        const dbUserData = User.findOneAndUpdate( 
-            { _id: req.params.userId }, 
-            { 
-                $addToSet: { friends: req.params.friendId },
-            },
-            {
-                new: true
-            }
+// Add a friend to a user's friend list
+router.post('/:userId/friends/:friendId', async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.userId,
+      { $addToSet: { friends: req.params.friendId } }, 
+      { new: true }
     );
-    if (!dbUserData) {
-        return res.status(404).json({ message: "No user matches this ID!"})
+
+    if (!user) {
+      return res.status(404).json({ message: 'No user with that ID' });
     }
-    res.status(200).json(dbUserData)
-    }catch(error) {
-        res.status(500).json(error)
-    }
+
+    res.json(user);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
 });
 
-// DELETE A FRIEND 
-router.delete("/:userId/friends/:friendId", async (req, res) => {
-    try {
-        const dbUserData = User.findOneAndDelete( 
-            { _id: req.params.userId },
-            {$pull: { friends: req.params.friendId}},
-            { new: true}
-        );
-            
-        if(!dbUserData) {
-            return res.status(404).json({ message: "No user matches this ID!"})
-        }
-    res.status(200).json(dbUserData)
-    }catch(error) {
-        res.status(500).json(error)
+// Remove a friend from a user's friend list
+router.delete('/:userId/friends/:friendId', async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.userId,
+      { $pull: { friends: req.params.friendId } }, // Use req.params.friendId
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'No user with that ID' });
     }
+
+    res.json(user);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
 });
 
 module.exports = router;
